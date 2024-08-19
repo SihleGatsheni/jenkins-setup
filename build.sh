@@ -31,17 +31,19 @@ echo "Setting up Docker Network"
 echo "Enter the network name: "
 read NETWORK_NAME
 sudo docker network create $NETWORK_NAME
-
+echo "Finished setting up Docker Network"
 #Running docker container
 echo  "Running Docker Container"
 
 echo "Enter the container name: "
 read CONTAINER_NAME
+echo "Enter the volume name: "
+read VOLUME_NAME
 sudo docker run --name $CONTAINER_NAME --restart unless-stopped --detach \
   --network $NETWORK_NAME --env DOCKER_HOST=tcp://docker:2376 \
   --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 \
   --publish 8080:8080 --publish 50000:50000 \
-  --volume jenkins-data:/var/jenkins_home \
+  --volume $VOLUME_NAME:/var/jenkins_home \
   --volume jenkins-docker-certs:/certs/client:ro \
   $IMAGE_NAME:latest
 
@@ -50,6 +52,8 @@ echo "Finished running Docker Container"
 
 # Getting server default password
 echo "Getting server default password"
-INITIAL_ADMIN_PASSWORD=$(sudo docker exec $CONTAINER_NAME cat /var/jenkins_home/secrets/initialAdminPassword)
+CONTAINER_ID=$(sudo docker ps -q --filter "name=$CONTAINER_NAME" --latest)
+echo "Container ID: $CONTAINER_ID"
+INITIAL_ADMIN_PASSWORD=$(sudo docker exec $CONTAINER_ID cat /var/jenkins_home/secrets/initialAdminPassword)
 
 echo "Server default password: $INITIAL_ADMIN_PASSWORD"
