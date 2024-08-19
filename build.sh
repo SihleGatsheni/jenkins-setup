@@ -53,7 +53,31 @@ echo "Finished running Docker Container"
 # Getting server default password
 echo "Getting server default password"
 CONTAINER_ID=$(sudo docker ps -q --filter "name=$CONTAINER_NAME" --latest)
-echo "Container ID: $CONTAINER_ID"
-INITIAL_ADMIN_PASSWORD=$(sudo docker exec $CONTAINER_ID cat /var/jenkins_home/secrets/initialAdminPassword)
+RETRY_INTERVAL=5  # Retry interval in seconds
+MAX_RETRIES=18    # Maximum number of retries (1 minute)
 
-echo "Server default password: $INITIAL_ADMIN_PASSWORD"
+echo "Container ID: $CONTAINER_ID"
+# Function to retrieve the initial admin password
+get_initial_password() {
+    INITIAL_ADMIN_PASSWORD=$(sudo docker exec $CONTAINER_ID cat /var/jenkins_home/secrets/initialAdminPassword)
+    echo "Server default password: $INITIAL_ADMIN_PASSWORD"
+}
+
+# Wait for the initial setup to complete
+retries=0
+while [ $retries -lt $MAX_RETRIES ]; do
+    if sudo docker exec $CONTAINER_ID [ -f /var/jenkins_home/secrets/initialAdminPassword ]; then
+        break
+    fi
+    retries=$((retries+1))
+    echo "Waiting for initial setup to complete... (Retry $retries/$MAX_RETRIES)"
+    sleep $RETRY_INTERVAL
+done
+
+# Check if the initial setup completed successfully
+if sudo docker exec $CONTAINER_ID [ -f /var/jenkins_home/secrets/initialAdminPassword ]; then
+    get_initial_password
+else
+    echo "Initial setup failed or timed out."
+    exit 1
+fi
