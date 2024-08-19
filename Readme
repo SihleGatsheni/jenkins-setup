@@ -1,4 +1,4 @@
-### Jenkins Local Deployment Simplified On Linux Debian Based Distros.
+### Jenkins Local Deployment Simplified On Linux Debian-Based Distros.
 
 ## The Following instructions will help you on how to deploy a Jenkins server Via Docker.
 
@@ -8,4 +8,4 @@
 2. ./build.sh
 
 # After successfully building the container and running it you'll receive the default password as output.
-# Copy the password to clipboard and run http://localhost:8080 and Paste the default password and continue.
+# Copy the password to the clipboard and run http://localhost:8080 Paste the default password and continue.
