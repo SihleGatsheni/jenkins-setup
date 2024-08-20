@@ -4,6 +4,8 @@
 
 # After Cloning/Downloading the Repo run the following
 
+## prerequisite
+# make sure you have docker installed
 1. chmod 755 build.sh
 2. ./build.sh
 
